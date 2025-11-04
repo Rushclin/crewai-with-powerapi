@@ -46,21 +46,21 @@ services:
     profiles:
       - prometheus
 
-  # CSV (Default is a dummy image, can be used to add treatments on CSV files)
-  csv:
-    container_name: csv
-    image: ${CSV_IMAGE}
-    volumes:
-      - ${PWD}/csv:/tmp/csv
-    profiles:
-      - csv
+  # # CSV (Default is a dummy image, can be used to add treatments on CSV files)
+  # csv:
+  #   container_name: csv
+  #   image: ${CSV_IMAGE}
+  #   volumes:
+  #     - ${PWD}/csv:/tmp/csv
+  #   profiles:
+  #     - csv
 
-  # Socket (Default is a dummy image, can be used to add treatments on formula socket)
-  socket:
-    container_name: socket
-    image: ${SOCKET_IMAGE}
-    profiles:
-      - socket
+  # # Socket (Default is a dummy image, can be used to add treatments on formula socket)
+  # socket:
+  #   container_name: socket
+  #   image: ${SOCKET_IMAGE}
+  #   profiles:
+  #     - socket
 
   ############################################
   #                POWERAPI                  #
