@@ -1,0 +1,48 @@
+# FROM python:3.12-slim
+
+# RUN apt-get update && apt-get install -y build-essential && \
+#     rm -rf /var/lib/apt/lists/*
+
+# WORKDIR /app
+
+# # Install crewai
+# RUN pip install uv
+# RUN uv tool install crewai
+# RUN crewai install
+
+# CMD ["python", "-m", "crewtest.main"]
+
+FROM python:3.12-slim
+
+# Installer les dépendances système
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copier les fichiers du projet
+COPY . /app
+
+# Installer uv
+
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+RUN uv tool list
+
+RUN uv tool install crewai
+RUN uv tool list
+RUN crewai install
+# Installer les dépendances Python
+# RUN pip install crewai crewai[tools]
+
+# Installer les dépendances du projet
+# RUN crewai install
+
+# Exposer le port si nécessaire
+EXPOSE 8000
+
+# Commande par défaut
+CMD ["crewai", "run"]

@@ -1,0 +1,35 @@
+FROM python:3.12-slim
+
+# Installer les dépendances système (cette couche sera mise en cache)
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Installer uv (cette couche sera mise en cache)
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.local/bin:/root/.cargo/bin:${PATH}"
+
+# Installer crewai (cette couche sera mise en cache)
+RUN uv tool install crewai
+
+# Copier uniquement pyproject.toml d'abord (pour le cache)
+COPY pyproject.toml /app/
+
+# Installer les dépendances du projet (cette couche sera mise en cache tant que pyproject.toml ne change pas)
+RUN crewai install
+
+# Copier le reste des fichiers (cette couche change souvent)
+COPY . /app
+
+# Exposer le port si nécessaire
+EXPOSE 8000
+
+# Se placer dans le dossier src
+# WORKDIR /app/src
+
+# Commande par défaut
+CMD ["crewai", "run"]

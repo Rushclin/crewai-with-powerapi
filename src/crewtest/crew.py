@@ -46,7 +46,7 @@ class Crewtest():
     def reporting_task(self) -> Task:
         return Task(
             config=self.tasks_config['reporting_task'], # type: ignore[index]
-            output_file='report.md'
+            output_file='/app/output/report.md'
         )
 
     @crew
@@ -60,6 +60,6 @@ class Crewtest():
             tasks=self.tasks, # Automatically created by the @task decorator
             process=Process.sequential,
             verbose=True,
-            # output_log_file=True
+            output_log_file=True
             # process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
         )

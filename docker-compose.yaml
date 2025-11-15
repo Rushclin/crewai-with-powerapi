@@ -26,7 +26,7 @@ services:
     ports: 
       - "8086:8086"
     volumes: 
-      - ${PWD}/influxdb:/var/lib/influxdb 
+      - ${PWD}/config/influxdb:/var/lib/influxdb 
     networks:
       - powerapi-network
     profiles:
@@ -39,8 +39,8 @@ services:
     ports: 
      - "9090:9090"
     volumes: 
-      - ${PWD}/prometheus:/opt/bitnami/prometheus/data # Folder must be writable for UID 1001
-      - ${PWD}/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ${PWD}/config/prometheus:/opt/bitnami/prometheus/data # Folder must be writable for UID 1001
+      - ${PWD}/config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
       - powerapi-network
     profiles:
@@ -51,7 +51,7 @@ services:
   #   container_name: csv
   #   image: ${CSV_IMAGE}
   #   volumes:
-  #     - ${PWD}/csv:/tmp/csv
+  #     - ${PWD}/config/csv:/tmp/csv
   #   profiles:
   #     - csv
 
@@ -76,7 +76,7 @@ services:
       - "--config-file"
       - "/etc/sensor.json"
     volumes:
-      - ${PWD}/sensor/hwpc-${POWERAPI_SOURCE}.json:/etc/sensor.json
+      - ${PWD}/config/sensor/hwpc-${POWERAPI_SOURCE}.json:/etc/sensor.json
       - type: bind
         source: /proc
         target: /proc
@@ -108,8 +108,8 @@ services:
       - "--config-file"
       - "/etc/formula.json"
     volumes:
-      - ${PWD}/formula/smartwatts-${POWERAPI_SOURCE}-${POWERAPI_DESTINATION}.json:/etc/formula.json
-      - ${PWD}/csv:/tmp/csv
+      - ${PWD}/config/formula/smartwatts-${POWERAPI_SOURCE}-${POWERAPI_DESTINATION}.json:/etc/formula.json
+      - ${PWD}/config/csv:/tmp/csv
     networks:
       - powerapi-network
     restart: unless-stopped
@@ -132,9 +132,9 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ${PWD}/grafana/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
-      - ${PWD}/grafana/datasource-${POWERAPI_DESTINATION}.yml:/etc/grafana/provisioning/datasources/datasource.yml
-      - ${PWD}/grafana/power-api-${POWERAPI_DESTINATION}.json:/etc/dashboards/power-api.json
+      - ${PWD}/config/grafana/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
+      - ${PWD}/config/grafana/datasource-${POWERAPI_DESTINATION}.yml:/etc/grafana/provisioning/datasources/datasource.yml
+      - ${PWD}/config/grafana/power-api-${POWERAPI_DESTINATION}.json:/etc/dashboards/power-api.json
     networks:
       - powerapi-network
     profiles:
@@ -171,16 +171,23 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      network: host
     image: ${CREWAI_IMAGE:-crewai-app:latest}
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - MODEL=${MODEL}
-      - API_BASE=${API_BASE}
+      # - MODEL=${MODEL}
+      # - API_BASE=${API_BASE}
+    env_file:
+      - .env
     volumes:
-      - ${PWD}/src:/app/src
-      - ${PWD}/knowledge:/app/knowledge
+      - ${PWD}/config/src:/app/src
+      - ${PWD}/config/knowledge:/app/knowledge
+      - ${PWD}/config/output:/app/output
     networks:
       - powerapi-network
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     labels:
       - "powerapi.container=crewai-app"
       - "powerapi.monitor=true"
