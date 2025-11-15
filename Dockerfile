@@ -41,12 +41,22 @@
 
 FROM python:3.12-slim
 
-RUN apt-get update && apt-get install -y build-essential && \
-    rm -rf /var/lib/apt/lists/*
-RUN pip install poetry
+# Set the working directory in the container
 WORKDIR /app
-COPY pyproject.toml ./
-RUN poetry install --no-interaction --no-root
+
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# Copy dependency files
+COPY pyproject.toml uv.lock ./
+
+# Install dependencies using uv
+RUN uv sync --frozen --no-install-project
+
+# Set the PYTHONPATH to include src/
+ENV PYTHONPATH=/app/src
+
+# Copy the application code
 COPY . .
 RUN poetry install
 COPY <<EOF /entrypoint.sh
